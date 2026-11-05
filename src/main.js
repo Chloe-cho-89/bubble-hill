@@ -80,5 +80,6 @@ showTitle();
 window.addEventListener('pagehide',e=>{if(!e.persisted){title?.dispose();selection?.dispose();soap?.dispose();shapeScene?.dispose();hill?.dispose();}});
 
 
-import { registerPwa } from './pwa.js';
+import { registerPwa, setupInstall } from './pwa.js';
+setupInstall();
 registerPwa();

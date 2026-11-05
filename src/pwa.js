@@ -1,3 +1,89 @@
+// Hints are passive text. UA detection is only a fallback, never permission to prompt.
+export function installationHint(nav) {
+  const ua = nav.userAgent || '';
+  if (/KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER|DaumApps|; wv\)/i.test(ua)) {
+    return 'Chrome에서 열어 주세요';
+  }
+  const ios = /iPhone|iPad|iPod/.test(ua) || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+  if (ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) {
+    return '공유 → 홈 화면에 추가';
+  }
+  return '';
+}
+
+export function setupInstall(win = window, doc = document) {
+  const area = doc.getElementById('install-area');
+  const button = doc.getElementById('install-app');
+  const help = doc.getElementById('install-help');
+  if (!area || !button || !help) return;
+  const mode = win.matchMedia?.('(display-mode: standalone)');
+  let pending = null, installed = false, busy = false, dismissed = false, failed = false;
+  const standalone = () => mode?.matches || win.navigator.standalone === true;
+  const render = () => {
+    const suppressed = installed || standalone() || busy || dismissed;
+    button.hidden = suppressed || !pending || win.navigator.onLine === false;
+    help.textContent = suppressed || !button.hidden ? '' :
+      (failed ? '브라우저 메뉴에서 설치해 주세요' : installationHint(win.navigator));
+    help.hidden = !help.textContent;
+    area.hidden = button.hidden && help.hidden;
+  };
+  const beforeInstall = event => {
+    event.preventDefault();
+    if (installed || standalone() || busy || dismissed) return;
+    pending = event;
+    failed = false;
+    render();
+  };
+  const complete = () => { installed = true; pending = null; render(); };
+  const stop = event => event.stopPropagation();
+  const install = async event => {
+    event.stopPropagation();
+    if (button.hidden || busy || !pending) return;
+    const request = pending;
+    pending = null;
+    busy = true;
+    render();
+    try {
+      // Call synchronously in the click gesture; each event may only be used once.
+      const result = await request.prompt();
+      const choice = request.userChoice ? await request.userChoice : result;
+      if (choice?.outcome === 'accepted') installed = true;
+      else dismissed = true; // Do not ask again during this visit.
+    } catch {
+      failed = true;
+    } finally {
+      busy = false;
+      render();
+      // The hidden install button must not retain keyboard focus.
+      const titleRoot = doc.getElementById('title-screen');
+      if (doc.activeElement === button && titleRoot && !titleRoot.hidden) {
+        doc.getElementById('start-walk')?.focus({preventScroll:true});
+      }
+    }
+  };
+  area.addEventListener('pointerdown', stop);
+  area.addEventListener('click', stop);
+  button.addEventListener('click', install);
+  win.addEventListener('beforeinstallprompt', beforeInstall);
+  win.addEventListener('appinstalled', complete);
+  win.addEventListener('online', render);
+  win.addEventListener('offline', render);
+  win.addEventListener('pageshow', render);
+  mode?.addEventListener?.('change', render);
+  render();
+  return {dispose() {
+    area.removeEventListener('pointerdown', stop);
+    area.removeEventListener('click', stop);
+    button.removeEventListener('click', install);
+    win.removeEventListener('beforeinstallprompt', beforeInstall);
+    win.removeEventListener('appinstalled', complete);
+    win.removeEventListener('online', render);
+    win.removeEventListener('offline', render);
+    win.removeEventListener('pageshow', render);
+    mode?.removeEventListener?.('change', render);
+  }};
+}
+
 // Keep updates waiting until every game window has closed, preserving the current walk.
 export function registerPwa(win = window, doc = document) {
   const status = doc.getElementById('offline-status');

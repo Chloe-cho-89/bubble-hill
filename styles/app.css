@@ -104,3 +104,8 @@
 #photo-room::backdrop{background:#4d3d485c}
 
 #offline-status { display:block; margin-top:10px; font-size:11px; color:#806b70; }
+.title-copy { position:relative; z-index:2; }
+#start-walk { z-index:1; }
+#install-area { margin-top:20px; pointer-events:auto; }
+#install-app { min-width:44px; min-height:44px; padding:10px 18px; font-size:13px; touch-action:manipulation; }
+#install-help { display:block; font-size:12px; line-height:1.6; }
