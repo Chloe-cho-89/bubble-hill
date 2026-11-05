@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>언덕 위의 비눗방울 · 산책과 불기</title><meta name="theme-color" content="#fff4e3"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="언덕 위의 비눗방울"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icons/icon-192.png"><link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png"><link rel="stylesheet" href="styles/app.css"></head><body>
+<section id="title-screen" aria-labelledby="game-title">
+<div class="title-scenery" aria-hidden="true"><i class="cloud c1"></i><i class="cloud c2"></i><i class="ridge far"></i><i class="ridge middle"></i><i class="ridge near"></i><i class="film b1"></i><i class="film b2"></i><i class="film b3"></i></div>
+<div class="title-copy"><h1 id="game-title">언덕 위의 비눗방울</h1><p id="tap-hint">톡 눌러 시작</p><small id="title-notice" role="status"></small><small id="offline-status" role="status"></small></div>
+<button id="start-walk" type="button" aria-labelledby="game-title tap-hint"></button></section>
+<section id="character-select" hidden aria-labelledby="choose-title">
+<div class="selection-wrap"><small class="eyebrow">언덕 위의 비눗방울</small><h1 id="choose-title" tabindex="-1">오늘은 누구와 걸을까요?</h1><p class="selection-intro">마음에 드는 친구를 골라주세요.</p>
+<fieldset class="character-options"><legend>함께할 친구</legend>
+<label class="character-card"><input type="radio" name="character" value="cloud" checked><canvas class="character-preview" aria-hidden="true"></canvas><strong>하늘 구슬 친구</strong><span>크림빛 몸과 둥근 볼</span><small>무료</small></label>
+<label class="character-card"><input type="radio" name="character" value="peach"><canvas class="character-preview" aria-hidden="true"></canvas><strong>복숭아 구슬 친구</strong><span>연보라 몸과 이마 표식</span><small>무료</small></label>
+</fieldset>
+<button id="locked-character" class="locked-card" type="button">♧ 새로운 친구 <span>잠김 · 준비 중</span></button>
+<p id="selection-status" role="status" aria-live="polite"></p><div class="selection-actions"><button id="enter-hill" type="button">비눗물 만들러 가기</button></div>
+</div></section>
+<section id="soap-making" hidden aria-labelledby="soap-title"><header><div><small>언덕 위의 비눗방울</small><h1 id="soap-title" tabindex="-1">나만의 비눗물</h1></div></header>
+<div class="soap-content"><div id="saved-soap" hidden><button type="button" id="reuse-soap" aria-label="지난번 비눗물 그대로 쓰기" aria-describedby="saved-recipe"><i id="saved-sample" aria-hidden="true"></i><strong>지난번 비눗물</strong><span id="saved-recipe"></span></button></div><p id="soap-status" role="status" aria-live="polite"></p><div class="soap-colors" aria-label="색 한 방울 더하기"></div>
+<p class="soap-color-label"><span id="soap-swatch" aria-hidden="true"></span>비눗물 색</p><canvas id="soap-canvas" aria-label="붓기가 끝나면 틀 안을 둥글게 끌어서 젓기"></canvas>
+<div class="soap-tools"><button id="pour-soap">틀에 붓기</button><button id="stir-soap" disabled>한 바퀴 젓기</button><button id="reset-soap">다시 만들기</button></div></div>
+<footer><button id="soap-enter" disabled>틀 모양 고르기</button></footer></section>
+<section id="shape-room" hidden aria-labelledby="shape-title"><div class="shape-body"><small class="eyebrow">언덕 위의 비눗방울</small><h1 id="shape-title" tabindex="-1">어떤 틀로 불까요?</h1><p>목걸이 틀을 눌러 방울 모양을 살펴보세요.</p>
+<canvas id="shape-sample" width="600" height="220" aria-label="목걸이 틀과 그 틀에서 나온 방울"></canvas>
+<div id="shape-choices" aria-label="틀 모양"></div><p id="shape-status" role="status"></p></div>
+<footer><button id="shape-enter">동그라미 틀로 언덕에 가기</button></footer></section>
+<dialog id="sound-settings" aria-labelledby="sound-title"><h2 id="sound-title">소리 설정</h2>
+<label><input type="checkbox" id="music-enabled"> 배경음악</label>
+<label for="music-track">산책 음악 <select id="music-track"><option value="dusk">노을에 머물다</option><option value="meadow">풀잎 사이로</option></select></label>
+<label><input type="checkbox" id="effects-enabled"> 효과음</label>
+<form method="dialog"><button>닫기</button></form></dialog>
+<dialog id="photo-room" aria-labelledby="photo-title"><h2 id="photo-title">언덕에서 담은 순간</h2><img id="photo-image" alt="방금 담은 언덕 풍경"><p id="photo-note" role="status"></p><div><a id="photo-save" download="언덕-위의-비눗방울.png">사진 저장</a> <button id="photo-share" hidden>공유</button> <button id="photo-close">닫기</button></div></dialog>
+<dialog id="exit-confirm" aria-labelledby="exit-title"><h2 id="exit-title">언덕을 나갈까요?</h2><p>캐릭터와 비눗물, 틀을 기억해 둘게요.</p><button id="exit-no" autofocus>아니요</button> <button id="exit-yes">네</button></dialog>
+<dialog id="hill-shapes" aria-label="산책 중 틀 보기"></dialog><main id="world" hidden>
+<header><div><small>언덕 위의 비눗방울</small><h1>조금 걷고, 잠깐 머물고.</h1></div><div class="hill-tools"><button type="button" id="browse-shapes" aria-haspopup="dialog">틀 보기</button><label class="film-menu">방울 보기 <select id="film-view"><option value="play">산책</option><!--color-review--><optgroup label="마법 재질 미리보기"><option value="aurora">🔒 오로라</option><option value="glitter">🔒 블링블링</option><option value="slime">🔒 슬라임</option></optgroup></select></label></div><div class="hill-actions"><button id="open-sound" type="button" aria-label="소리 설정" aria-controls="sound-settings" aria-haspopup="dialog">⚙</button><button type="button" id="ask-exit" aria-haspopup="dialog" aria-controls="exit-confirm"><span id="door-icon" aria-hidden="true"></span> 나가기</button></div></header>
+<section class="stage" aria-label="산책 장면"><canvas tabindex="-1" id="canvas" aria-label="바닥을 눌러 걷고, 좌우로 끌어 둘러보기"></canvas>
+<div class="view"><output id="bearing">둘러보기</output><div><button id="left" aria-label="왼쪽으로 둘러보기">↶</button><button id="right" aria-label="오른쪽으로 둘러보기">↷</button></div></div>
+<div class="controls"><div id="stick" role="group" aria-label="이동 방향 패드"><div id="knob"></div><span aria-hidden="true">걷기</span></div></div>
+<button id="camera-shot" type="button" aria-label="산책 사진 찍기" aria-haspopup="dialog">📷</button><button id="mode" aria-label="불기 방식 바꾸기">연속</button><button id="blow" aria-label="비눗방울 불기, 길게 누르면 크게">후— ◯</button>
+</section>
+<footer><p>바닥을 톡 눌러 걷고, 둘러보고, 꾹 눌러 비눗방울을 불어보세요.</p><small>방향 패드 / WASD 이동 · ← → 회전 · Space 불기</small></footer>
+</main><script type="module" src="src/main.js"></script></body></html>
+
