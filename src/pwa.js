@@ -1,6 +1,7 @@
 // Hints are passive text. UA detection is only a fallback, never permission to prompt.
 export function installationHint(nav) {
   const ua = nav.userAgent || '';
+  if (/SamsungBrowser/i.test(ua)) return 'Chrome에서 열면 바로 설치할 수 있어요';
   if (/KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER|DaumApps|; wv\)/i.test(ua)) {
     return 'Chrome에서 열어 주세요';
   }
@@ -17,11 +18,18 @@ export function setupInstall(win = window, doc = document) {
   const help = doc.getElementById('install-help');
   if (!area || !button || !help) return;
   const mode = win.matchMedia?.('(display-mode: standalone)');
+  const samsung = /SamsungBrowser/i.test(win.navigator.userAgent || '');
   let pending = null, installed = false, busy = false, dismissed = false, failed = false;
   const standalone = () => mode?.matches || win.navigator.standalone === true;
   const render = () => {
     const suppressed = installed || standalone() || busy || dismissed;
-    button.hidden = suppressed || !pending || win.navigator.onLine === false;
+    const hideButton = suppressed || samsung || !pending || win.navigator.onLine === false;
+    // Hiding a focused element can move focus to body before the prompt closes.
+    const titleRoot = doc.getElementById('title-screen');
+    if (hideButton && doc.activeElement === button && titleRoot && !titleRoot.hidden) {
+      doc.getElementById('start-walk')?.focus({preventScroll:true});
+    }
+    button.hidden = hideButton;
     help.textContent = suppressed || !button.hidden ? '' :
       (failed ? '브라우저 메뉴에서 설치해 주세요' : installationHint(win.navigator));
     help.hidden = !help.textContent;
@@ -29,7 +37,7 @@ export function setupInstall(win = window, doc = document) {
   };
   const beforeInstall = event => {
     event.preventDefault();
-    if (installed || standalone() || busy || dismissed) return;
+    if (samsung || installed || standalone() || busy || dismissed) return;
     pending = event;
     failed = false;
     render();
@@ -54,11 +62,6 @@ export function setupInstall(win = window, doc = document) {
     } finally {
       busy = false;
       render();
-      // The hidden install button must not retain keyboard focus.
-      const titleRoot = doc.getElementById('title-screen');
-      if (doc.activeElement === button && titleRoot && !titleRoot.hidden) {
-        doc.getElementById('start-walk')?.focus({preventScroll:true});
-      }
     }
   };
   area.addEventListener('pointerdown', stop);
