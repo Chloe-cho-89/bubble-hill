@@ -32,6 +32,9 @@ function showFilmSamples(view,world,choice,time){
   ctx.fillStyle='#5d4652';ctx.fillText(label,0,r+15);ctx.restore();
  });
 }
+export function syncModeDescription(element,mode) {
+ if(element)element.textContent=mode==='single'?'가장 큰 방울에 도전해 봐요!':'방울로 하늘을 마음껏 채워 봐요';
+}
 export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
  const viewport=createViewport(elements.canvas),world=new HillWorld(),renderer=new HillRenderer(viewport,art);
  if(selection)applyCharacter(world,selection);
@@ -44,6 +47,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
  if(elements.risk)elements.risk.value=SINGLE.defaultRisk;
  const changeRisk=()=>{bubbles.cancel();bubbles.median=SINGLE.presets[elements.risk.value]??SINGLE.presets[SINGLE.defaultRisk];elements.canvas.focus();};
  const syncMode=()=>{
+  syncModeDescription(elements['mode-description'],bubbles.mode);
   if(elements.mode)elements.mode.textContent=bubbles.mode==='single'?'한 방울':'연속';
   syncRecordDisplay(elements.records,bubbles,elements['bubble-notice']);
  };

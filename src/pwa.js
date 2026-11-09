@@ -100,6 +100,8 @@ export function setupUpdateBanner(registration, win=window, doc=document) {
   const refresh=()=>{
     const waiting=registration.waiting && registration.waiting.state!=='redundant';
     for(const strip of strips)strip.hidden=!waiting;
+    const status=doc.getElementById?.('offline-status');
+    if(status)status.hidden=Boolean(waiting && strips.length);
     for(const button of buttons)button.disabled=requested || !waiting;
   };
   const activate=event=>{

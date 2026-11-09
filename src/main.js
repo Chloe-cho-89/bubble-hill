@@ -23,7 +23,7 @@ for(const color of SOAP_COLORS){
 const byId=id=>document.getElementById(id);
 import { doorIcon } from "./art/placeholder.js";
 byId("door-icon").textContent=doorIcon;
-const elements=Object.fromEntries(['canvas','stick','knob','left','right','bearing','blow','mode','records','bubble-notice','single-panel','risk','film-view','camera-shot','photo-room','open-sound','sound-settings','browse-shapes','hill-shapes','ask-exit','exit-no','exit-yes','exit-confirm'].map(id=>[id,byId(id)]));
+const elements=Object.fromEntries(['canvas','stick','knob','left','right','bearing','blow','mode','mode-description','records','bubble-notice','single-panel','risk','film-view','camera-shot','photo-room','open-sound','sound-settings','browse-shapes','hill-shapes','ask-exit','exit-no','exit-yes','exit-confirm'].map(id=>[id,byId(id)]));
 const state=createGameState();let hill=null,soap=null,shapeScene=null;
 const selectRoot=byId('character-select'),soapRoot=byId('soap-making'),hillRoot=byId('world');
 let storage=null;

@@ -29,12 +29,14 @@ export function syncRecordDisplay(element,blower,notice) {
  const single=blower.mode==='single',fresh=single && blower.sparkUntil>blower.time;
  if(element){
   element.hidden=!single;
-  const text=blower.chipCollapsed?'🫧 '+recordSizeText(blower.record.best):
-   '🫧 오늘 '+recordSizeText(blower.record.today)+' · 최고 '+recordSizeText(blower.record.best);
+  const records='오늘 '+recordSizeText(blower.record.today)+' · 최고 '+recordSizeText(blower.record.best);
+  const expanded=blower.record.best===0?'🫧 첫 방울을 불어 봐요':
+   blower.record.today===0?'🫧 오늘 첫 방울을 불어 봐요 · 최고 '+recordSizeText(blower.record.best):'🫧 '+records;
+  const text=blower.chipCollapsed?'🫧':expanded;
   if(element.textContent!==text)element.textContent=text;
   element.classList.toggle('new-record',fresh);
   element.setAttribute?.('aria-expanded',String(!blower.chipCollapsed));
-  element.setAttribute?.('aria-label',text+(blower.chipCollapsed?' · 기록 펼치기':' · 기록 접기'));
+  element.setAttribute?.('aria-label',records+(blower.chipCollapsed?' · 기록 펼치기':' · 기록 접기'));
  }
  if(notice){
   const text=single && blower.noticeUntil>blower.time?blower.noticeText:'';
@@ -118,7 +120,7 @@ export class HillBlower extends HoopBubbles {
   if(!this.reached100 && multiple>=10){this.reached100=true;this.assist.seen100=true;this.announce('1m 돌파!');this.save();}
   if(!this.reached150 && multiple>=15){this.reached150=true;this.assist.miss150=0;this.announce('전설의 방울!');this.save();}
   if(multiple>=this.burstSize || multiple>=SINGLE.cap){
-   if(multiple>=9 && multiple<10)this.announce('아깝다! 1m까지 '+Math.ceil((10-multiple)*SINGLE.cmPerHoop)+' cm');
+   if(multiple>=9 && multiple<10)this.announce('아깝다! 1m까지 '+Math.ceil((10-multiple)*SINGLE.cmPerHoop)+'cm');
    this.release(false);b.popAge=0;this.onPop?.();
   }
  }
