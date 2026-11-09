@@ -1,6 +1,7 @@
 import { mountShapeSelect } from './shape-select.js';
 import { applyCharacter } from '../core/state.js';
-import { HillBlower } from '../bubbles/single.js';
+import { HillBlower, syncRecordDisplay } from '../bubbles/single.js';
+import { photoSaveHint } from '../pwa.js';
 import { HILL_EXIT,SINGLE } from '../config.js';
 import { queueHoopBubbles } from '../bubbles/hoop-renderer.js';
 import { createViewport } from '../core/viewport.js';
@@ -44,6 +45,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
  const changeRisk=()=>{bubbles.cancel();bubbles.median=SINGLE.presets[elements.risk.value]??SINGLE.presets[SINGLE.defaultRisk];elements.canvas.focus();};
  const syncMode=()=>{
   if(elements.mode)elements.mode.textContent=bubbles.mode==='single'?'한 방울':'연속';
+  syncRecordDisplay(elements.records,bubbles);
  };
  const filmMenu=elements['film-view'];
  const selectFilm=()=>{
@@ -111,7 +113,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
      photoURL=URL.createObjectURL(blob);
      image.src=photoURL;save.href=photoURL;save.hidden=false;
      save.download='언덕-위의-비눗방울-'+Date.now()+'.png';
-     note.textContent='';
+     note.textContent=photoSaveHint(navigator);
      if(typeof File==='function' && navigator.canShare){
       photoFile=new File([blob],save.download,{type:'image/png'});
       share.hidden=!navigator.canShare({files:[photoFile]});
@@ -147,6 +149,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
   if(distance>HILL_EXIT.rearm)armed=true;
   if(armed&&distance<HILL_EXIT.enter){armed=false;askExit();}
  },()=>{
+  syncRecordDisplay(elements.records,bubbles);
   renderer.draw(world,(r,m)=>queueHoopBubbles(r,bubbles,m));showFilmSamples(viewport,world,filmMenu?.value,bubbles.time);elements.blow?.classList.toggle('pressed',bubbles.active);elements.bearing.textContent='둘러보기 '+((Math.round(world.yaw*180/Math.PI)%360+360)%360)+'°';});
  return {world,bubbles,dispose(){abortExit.abort();if(soundDialog?.open)soundDialog.close();if(exitDialog?.open)exitDialog.close();stop();browse?.removeEventListener('click',openFitting);dialog?.removeEventListener('close',closeFitting);fitting?.dispose();if(dialog?.open){dialog.close();dialog.replaceChildren();}filmMenu?.removeEventListener('change',selectFilm);elements.mode?.removeEventListener('click',changeMode);elements.risk?.removeEventListener('change',changeRisk);input.dispose();viewport.dispose()}};
 }

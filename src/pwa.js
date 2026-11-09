@@ -1,12 +1,18 @@
+export function isInAppBrowser(nav) {
+  return /KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER|DaumApps|; wv\)/i.test(nav.userAgent || '');
+}
+export function photoSaveHint(nav) {
+  return isInAppBrowser(nav) ? '사진을 길게 눌러 저장해 주세요' : '';
+}
 // Hints are passive text. UA detection is only a fallback, never permission to prompt.
 export function installationHint(nav) {
   const ua = nav.userAgent || '';
-  if (/SamsungBrowser/i.test(ua)) return 'Chrome에서 열면 바로 설치할 수 있어요';
-  if (/KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER|DaumApps|; wv\)/i.test(ua)) {
+  if (/SamsungBrowser/i.test(ua)) return '삼성 인터넷에서 설치하면 경고가 뜰 수 있어요 · Chrome에서 열면 바로 설치할 수 있어요';
+  if (isInAppBrowser(nav)) {
     return 'Chrome에서 열어 주세요';
   }
   const ios = /iPhone|iPad|iPod/.test(ua) || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
-  if (ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) {
+  if (ios && (/CriOS/.test(ua) || /Safari/.test(ua) && !/FxiOS|EdgiOS|OPiOS/.test(ua))) {
     return '공유 → 홈 화면에 추가';
   }
   return '';

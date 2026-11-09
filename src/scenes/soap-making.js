@@ -39,7 +39,7 @@ export function mountSoapMaking(elements,state,onEnter,paint=drawSoap){
   }
   const recipe=model.colors.join(',');
   if(recipe!==lastRecipe){refreshLabels();lastRecipe=recipe;}
-  const text={color:bottle?bottle.name+' 병을 골랐어요. 한 방울 부어 보세요.':model.colors.length?'다른 색을 더 붓거나, 이제 저어 보세요.':'유리병 하나를 골라 보세요.',bottle:'유리병에서 한 방울 떨어져요.',stir:'둥글게 저어 주세요 · '+Math.floor(model.stir/(2*Math.PI))+' / '+Math.round(SOAP_CONFIG.stirRadians/(2*Math.PI))+'바퀴',ready:'색이 완성됐어요. 더 젓거나 틀을 골라 보세요.'}[model.phase];
+  const text={color:bottle?bottle.name+' 병을 골랐어요. 한 방울 부어 보세요.':model.colors.length?'다른 색을 더 붓거나, 이제 저어 보세요.':'유리병 하나를 골라 보세요.',bottle:'유리병에서 한 방울 떨어져요.',stir:'둥글게 저어 주세요 · '+Math.floor(model.stir/(2*Math.PI))+' / '+Math.round(SOAP_CONFIG.stirRadians/(2*Math.PI))+'바퀴',ready:model.colors.length?'색이 완성됐어요. 더 젓거나 틀을 골라 보세요.':'맑은 비눗물이 완성됐어요. 더 젓거나 틀을 골라 보세요.'}[model.phase];
   if(elements.status.textContent!==text)elements.status.textContent=text;elements.swatch.style.background=model.phase==='ready'?model.color??'transparent':recipeSwatch(model);
  paint(view.ctx,model,view.width,view.height);}
  const position=e=>{const r=elements.canvas.getBoundingClientRect();return {x:((e.clientX-r.left)/r.width-.5)/.32,y:((e.clientY-r.top)/r.height-.65)/.22}};
@@ -67,7 +67,7 @@ export function mountSoapMaking(elements,state,onEnter,paint=drawSoap){
  const prior=elements.previous;
  if(elements.card)elements.card.hidden=!prior;
  if(prior){
-  elements.description.textContent=prior.color?SOAP_COLORS.filter(c=>prior.drops[c.id]>0).map(c=>c.name+' '+prior.drops[c.id]+'방울').join(' · '):'맑은 물 · 0방울';
+  elements.description.textContent=prior.color?SOAP_COLORS.filter(c=>prior.drops[c.id]>0).map(c=>c.name+' '+prior.drops[c.id]+'방울').join(' · '):'맑은 물';
   elements.sample.style.backgroundColor=prior.color??'transparent';
   listen(elements.reuse,'click',()=>finish(prior.color,prior.drops));
  }

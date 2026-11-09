@@ -1,9 +1,26 @@
-import { CONFIG, SINGLE } from '../config.js';
+import { CONFIG, SINGLE, RECORD_LABELS } from '../config.js';
 import { HoopBubbles } from './hoop-system.js';
 
 export function burstLoad(multiple, median) {
  // Cumulative hazard from one hoop diameter, calibrated to 50% at the median.
  return Math.LN2 * (multiple ** 3 - 1) / (median ** 3 - 1);
+}
+
+export function recordSizeText(size, labels=RECORD_LABELS) {
+ if(!Number.isFinite(size) || size<=0)return '첫 방울을 기다려요';
+ let name=labels[0].name;
+ for(const band of labels)if(size>=band.min)name=band.name;
+ return name+'만 해요';
+}
+export function syncRecordDisplay(element, blower) {
+ if(!element)return;
+ blower.refreshDay();
+ element.hidden=blower.mode!=='single';
+ const fresh=blower.mode==='single' && blower.sparkUntil>blower.time;
+ const text=(fresh?'와, 오늘 가장 큰 방울':'오늘의 큰 방울')+' · '+recordSizeText(blower.record.today)+
+  '\n내 최고 방울 · '+recordSizeText(blower.record.best);
+ if(element.textContent!==text)element.textContent=text;
+ element.classList.toggle('new-record',fresh);
 }
 
 export class HillBlower extends HoopBubbles {

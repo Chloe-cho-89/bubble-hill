@@ -106,6 +106,12 @@
 #offline-status { display:block; margin-top:10px; font-size:11px; color:#806b70; }
 .title-copy { position:relative; z-index:2; }
 #start-walk { z-index:1; }
-#install-area { margin-top:20px; pointer-events:auto; }
-#install-app { min-width:44px; min-height:44px; padding:10px 18px; font-size:13px; touch-action:manipulation; }
-#install-help { display:block; font-size:12px; line-height:1.6; }
+#install-area { margin-top:20px; pointer-events:none; }
+#install-app { min-width:44px; min-height:44px; padding:10px 18px; font-size:13px; touch-action:manipulation; pointer-events:auto; }
+#install-help { display:inline-block; max-width:100%; font-size:12px; line-height:1.6; pointer-events:auto; }
+h1[tabindex="-1"]:focus { outline:none; }
+@media (any-pointer:coarse) { #pc-hint { display:none; } }
+#records { display:block; white-space:pre-line; font-size:11px; line-height:1.6; margin:0 0 5px; color:#806373; pointer-events:none; }
+#records.new-record { animation:record-glimmer 1s ease-out; }
+@keyframes record-glimmer { 35% { color:#aa6487; text-shadow:0 0 8px #e4a6c8; } }
+@media(prefers-reduced-motion:reduce) { #records.new-record { animation:none; color:#aa6487; } }
