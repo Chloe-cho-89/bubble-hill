@@ -7,7 +7,7 @@ export function photoSaveHint(nav) {
 // Hints are passive text. UA detection is only a fallback, never permission to prompt.
 export function installationHint(nav) {
   const ua = nav.userAgent || '';
-  if (/SamsungBrowser/i.test(ua)) return '삼성 인터넷에서 설치하면 경고가 뜰 수 있어요 · Chrome에서 열면 바로 설치할 수 있어요';
+  if (/SamsungBrowser/i.test(ua)) return '삼성 인터넷에서 설치하면 경고가 뜰 수 있어요\nChrome에서 열면 바로 설치할 수 있어요';
   if (isInAppBrowser(nav)) {
     return 'Chrome에서 열어 주세요';
   }
@@ -93,7 +93,38 @@ export function setupInstall(win = window, doc = document) {
   }};
 }
 
-// Keep updates waiting until every game window has closed, preserving the current walk.
+export function setupUpdateBanner(registration, win=window, doc=document) {
+  const strips=[...doc.querySelectorAll?.('[data-update-banner]') || []];
+  const buttons=[...doc.querySelectorAll?.('[data-update-reload]') || []];
+  let requested=false,reloaded=false;
+  const refresh=()=>{
+    const waiting=registration.waiting && registration.waiting.state!=='redundant';
+    for(const strip of strips)strip.hidden=!waiting;
+    for(const button of buttons)button.disabled=requested || !waiting;
+  };
+  const activate=event=>{
+    event.stopPropagation();
+    if(requested || !registration.waiting)return;
+    requested=true;
+    try {
+      win.dispatchEvent(new Event('bubble-hill:before-update'));
+      registration.waiting.postMessage({type:'SKIP_WAITING'});
+    } catch {requested=false;}
+    refresh();
+  };
+  const changed=()=>{
+    if(!requested || reloaded)return;
+    reloaded=true;
+    win.location.reload();
+  };
+  for(const button of buttons)button.addEventListener('click',activate);
+  for(const strip of strips)strip.addEventListener('pointerdown',event=>event.stopPropagation());
+  win.navigator.serviceWorker.addEventListener?.('controllerchange',changed);
+  refresh();
+  return refresh;
+}
+
+// Updates wait for every game window to close unless the owner explicitly reloads.
 export function registerPwa(win = window, doc = document) {
   const status = doc.getElementById('offline-status');
   const say = message => { if (status) status.textContent = message; };
@@ -102,15 +133,16 @@ export function registerPwa(win = window, doc = document) {
   }
   say('오프라인 산책을 준비하고 있어요');
   return win.navigator.serviceWorker.register('./sw.js', {updateViaCache: 'none'}).then(registration => {
-    const showReady = () => say(registration.waiting
+    const refreshBanner=setupUpdateBanner(registration,win,doc);
+    const showReady = () => {refreshBanner();say(registration.waiting
       ? '새 산책이 준비됐어요 · 모두 닫고 다시 열면 만나요'
-      : '인터넷 없이도 산책할 수 있어요');
+      : '인터넷 없이도 산책할 수 있어요');};
     if (registration.active) showReady();
     const watch = worker => {
       if (!worker) return;
       const changed = () => {
-        if (worker.state === 'installed' || worker.state === 'activated') showReady();
-        if (worker.state === 'redundant') say('오프라인 준비를 다음 접속 때 다시 해볼게요');
+        if (worker.state === 'installed' || worker.state === 'activated') {showReady();Promise.resolve().then(showReady);}
+        if (worker.state === 'redundant') {refreshBanner();say('오프라인 준비를 다음 접속 때 다시 해볼게요');}
       };
       worker.addEventListener('statechange', changed);
       changed();

@@ -111,7 +111,22 @@
 #install-help { display:inline-block; max-width:100%; font-size:12px; line-height:1.6; pointer-events:auto; }
 h1[tabindex="-1"]:focus { outline:none; }
 @media (any-pointer:coarse) { #pc-hint { display:none; } }
-#records { display:block; white-space:pre-line; font-size:11px; line-height:1.6; margin:0 0 5px; color:#806373; pointer-events:none; }
-#records.new-record { animation:record-glimmer 1s ease-out; }
+#records { position:absolute; left:12px; top:84px; max-width:calc(100% - 24px); min-height:44px; padding:6px 12px; font-size:12px; white-space:nowrap; color:#806373; background:#fff8e8e8; touch-action:manipulation; }
+#records.new-record { animation:record-glimmer .8s ease-in-out infinite; }
 @keyframes record-glimmer { 35% { color:#aa6487; text-shadow:0 0 8px #e4a6c8; } }
 @media(prefers-reduced-motion:reduce) { #records.new-record { animation:none; color:#aa6487; } }
+
+#bubble-notice { position:absolute; left:12px; right:12px; top:132px; text-align:center; font-size:13px; color:#806373; pointer-events:none; text-shadow:0 1px 3px #fff8e8; }
+#bubble-notice.new-record { animation:record-glimmer .8s ease-in-out infinite; }
+#install-help { white-space:pre-line; word-break:keep-all; overflow-wrap:normal; }
+#start-walk:focus { outline:none; }
+#start-walk:focus-visible { outline:2px solid #8a727c; outline-offset:-5px; }
+#title-screen[data-input="touch"] #start-walk:focus-visible { outline:none; }
+.update-banner { display:flex; align-items:center; justify-content:center; gap:8px; padding:4px 8px; background:#fff7df; color:#68535c; font-size:13px; word-break:keep-all; z-index:4; }
+.update-banner button { font-size:13px; padding:6px 12px; min-height:44px; white-space:nowrap; touch-action:manipulation; }
+#title-screen>.update-banner { position:absolute; top:env(safe-area-inset-top); left:0; right:0; }
+#world .update-banner { grid-column:1/-1; grid-row:1; }
+#world header:has(.update-banner:not([hidden]))>.hill-tools { grid-row:3; }
+#world header:has(.update-banner:not([hidden]))>.hill-actions { grid-row:2; }
+#world header:has(.update-banner:not([hidden]))>div:not([data-update-banner]):not(.hill-tools):not(.hill-actions) { grid-row:2; }
+@media(prefers-reduced-motion:reduce) { #bubble-notice.new-record { animation:none; } }

@@ -45,7 +45,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
  const changeRisk=()=>{bubbles.cancel();bubbles.median=SINGLE.presets[elements.risk.value]??SINGLE.presets[SINGLE.defaultRisk];elements.canvas.focus();};
  const syncMode=()=>{
   if(elements.mode)elements.mode.textContent=bubbles.mode==='single'?'한 방울':'연속';
-  syncRecordDisplay(elements.records,bubbles);
+  syncRecordDisplay(elements.records,bubbles,elements['bubble-notice']);
  };
  const filmMenu=elements['film-view'];
  const selectFilm=()=>{
@@ -85,6 +85,8 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
  let armed=true;
  const abortExit=new AbortController();
  function listenExit(el,event,fn){el?.addEventListener(event,fn,{signal:abortExit.signal});}
+ listenExit(elements.records,'click',event=>{event.stopPropagation();bubbles.toggleChip();syncRecordDisplay(elements.records,bubbles,elements['bubble-notice']);});
+ listenExit(window,'bubble-hill:before-update',()=>{bubbles.cancel();bubbles.save();});
  const soundDialog = elements['sound-settings'];
  const photo = elements['photo-room'];
  let photoURL, photoFile;
@@ -149,7 +151,7 @@ export function mountHill(elements,art,selection=null,onExit=()=>{},audio=null){
   if(distance>HILL_EXIT.rearm)armed=true;
   if(armed&&distance<HILL_EXIT.enter){armed=false;askExit();}
  },()=>{
-  syncRecordDisplay(elements.records,bubbles);
+  syncRecordDisplay(elements.records,bubbles,elements['bubble-notice']);
   renderer.draw(world,(r,m)=>queueHoopBubbles(r,bubbles,m));showFilmSamples(viewport,world,filmMenu?.value,bubbles.time);elements.blow?.classList.toggle('pressed',bubbles.active);elements.bearing.textContent='둘러보기 '+((Math.round(world.yaw*180/Math.PI)%360+360)%360)+'°';});
  return {world,bubbles,dispose(){abortExit.abort();if(soundDialog?.open)soundDialog.close();if(exitDialog?.open)exitDialog.close();stop();browse?.removeEventListener('click',openFitting);dialog?.removeEventListener('close',closeFitting);fitting?.dispose();if(dialog?.open){dialog.close();dialog.replaceChildren();}filmMenu?.removeEventListener('change',selectFilm);elements.mode?.removeEventListener('click',changeMode);elements.risk?.removeEventListener('change',changeRisk);input.dispose();viewport.dispose()}};
 }
