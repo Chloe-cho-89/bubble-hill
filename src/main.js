@@ -66,7 +66,7 @@ function chooseCharacter(){
  state.stage='character-select';selectRoot.hidden=false;
  selection=mountCharacterSelect({choices:[...document.querySelectorAll('input[name="character"]')],previews:[...document.querySelectorAll('.character-preview')],status:byId('selection-status'),locked:byId('locked-character'),enter:byId('enter-hill')},state,()=>{
  selection.dispose();selectRoot.hidden=true;soapRoot.hidden=false;
- soap=mountSoapMaking({onEffect:name=>audio.effect(name),previous:readVisit(storage)?.soap,card:byId('saved-soap'),sample:byId('saved-sample'),description:byId('saved-recipe'),reuse:byId('reuse-soap'),canvas:byId('soap-canvas'),colors:[...document.querySelectorAll('[data-color]')],pour:byId('pour-soap'),stir:byId('stir-soap'),reset:byId('reset-soap'),enter:byId('soap-enter'),status:byId('soap-status'),swatch:byId('soap-swatch')},state,()=>{soap.dispose();soapRoot.hidden=true;
+ soap=mountSoapMaking({storage,hint:byId('stir-hint'),onEffect:name=>audio.effect(name),previous:readVisit(storage)?.soap,card:byId('saved-soap'),sample:byId('saved-sample'),description:byId('saved-recipe'),reuse:byId('reuse-soap'),canvas:byId('soap-canvas'),colors:[...document.querySelectorAll('[data-color]')],pour:byId('pour-soap'),stir:byId('stir-soap'),reset:byId('reset-soap'),enter:byId('soap-enter'),status:byId('soap-status'),swatch:byId('soap-swatch')},state,()=>{soap.dispose();soapRoot.hidden=true;
  const shapeRoot=byId('shape-room');shapeRoot.hidden=false;byId('shape-title').focus();
  state.stage='shape-select';
  shapeScene=mountShapeSelect(shapeRoot,state,()=>{state.stage='hill';shapeRoot.hidden=true;hillRoot.hidden=false;hill=mountHill(elements,undefined,state,()=>{

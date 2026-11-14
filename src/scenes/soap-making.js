@@ -4,6 +4,17 @@ import { drawSoap } from '../soap/renderer.js';
 import { SOAP_CONFIG } from '../config.js';
 import { createViewport } from '../core/viewport.js';
 import { startLoop } from '../core/loop.js';
+export function createStirHint(element,storage,now=()=>Date.now()) {
+ const key='bubble-hill.stir-hint.v1';let learned=false,until=0;
+ try{learned=storage?.getItem(key)==='done';}catch{}
+ const hide=()=>{until=0;if(element)element.textContent='';};
+ return {
+  show(){if(learned||!element)return;until=now()+2500;element.textContent='손가락으로 그릇을 빙빙 돌려 저어 봐요';},
+  update(){if(until&&now()>=until)hide();},
+  stroke(before,after){if(!(after>before))return;learned=true;hide();try{storage?.setItem(key,'done');}catch{}},
+  hide
+ };
+}
 function recipeSwatch(model){
  const drops=model.colors;
  if(drops.length<2)return model.color??'transparent';
@@ -18,9 +29,11 @@ function ringSwatch(drops,model){
 export function mountSoapMaking(elements,state,onEnter,paint=drawSoap){
  const model=new SoapModel(null),view=createViewport(elements.canvas),listeners=[];let pointer=null,entered=false;
  const listen=(el,type,fn)=>{el.addEventListener(type,fn);listeners.push(()=>el.removeEventListener(type,fn))};
+ const hint=createStirHint(elements.hint,elements.storage);
  let lastRecipe=null;
  let heardStirAt=0;
  function render(){
+  hint.update();
   if(model.stir < heardStirAt) heardStirAt=0;
   if(model.stir - heardStirAt >= Math.PI/2){
    heardStirAt=model.stir;
@@ -55,9 +68,9 @@ export function mountSoapMaking(elements,state,onEnter,paint=drawSoap){
  for(const button of elements.colors)listen(button,'click',()=>{
   if(model.selectBottle(button.dataset.color))render();
  });
- listen(elements.pour,'click',()=>{model.pourBottle();render()});listen(elements.stir,'click',()=>{if(!model.beginStir())model.addStir(SOAP_CONFIG.keyboardStirRadians);render()});listen(elements.reset,'click',()=>{release();model.reset();refreshLabels();render()});
+ listen(elements.pour,'click',()=>{model.pourBottle();render()});listen(elements.stir,'click',()=>{if(!model.beginStir()&&model.canStir){model.addStir(SOAP_CONFIG.keyboardStirRadians);hint.show();}render()});listen(elements.reset,'click',()=>{release();hint.hide();model.reset();refreshLabels();render()});
  listen(elements.canvas,'pointerdown',e=>{if(!model.canStir||pointer!==null||(e.pointerType==='mouse'&&e.button!==0))return;const p=position(e);if(Math.hypot(p.x,p.y)>SOAP_CONFIG.maxStirRadius)return;e.preventDefault();pointer=e.pointerId;elements.canvas.setPointerCapture(pointer);model.stroke(p.x,p.y);render()});
- listen(elements.canvas,'pointermove',e=>{if(e.pointerId!==pointer)return;const p=position(e);model.stroke(p.x,p.y);render()});
+ listen(elements.canvas,'pointermove',e=>{if(e.pointerId!==pointer)return;const p=position(e),before=model.stir;model.stroke(p.x,p.y);hint.stroke(before,model.stir);render()});
  for(const type of ['pointerup','pointercancel','lostpointercapture'])listen(elements.canvas,type,e=>{if(e.pointerId===pointer)release()});
  listen(elements.canvas,'contextmenu',e=>e.preventDefault());listen(window,'blur',release);listen(window,'pagehide',release);listen(document,'visibilitychange',()=>{if(document.hidden)release()});const offResize=view.subscribe(release);
  function finish(color,drops){
@@ -77,5 +90,5 @@ export function mountSoapMaking(elements,state,onEnter,paint=drawSoap){
   model.update(dt);
   if(wasPouring && model.phase==='color') elements.onEffect?.('pour');
  },render);
- return {model,dispose(){stop();release();offResize();view.dispose();listeners.forEach(fn=>fn())}};
+ return {model,dispose(){hint.hide();stop();release();offResize();view.dispose();listeners.forEach(fn=>fn())}};
 }
